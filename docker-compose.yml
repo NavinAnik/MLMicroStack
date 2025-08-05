@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  # PostgreSQL DBs
+  postgres_ingestion:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: microml_ingestion_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - ingestion_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  postgres_preprocess:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: microml_preprocess_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - preprocess_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  postgres_feature:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: microml_feature_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - feature_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+
+  postgres_training:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: microml_training_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - training_data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+
+  postgres_inference:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: microml_inference_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - inference_data:/var/lib/postgresql/data
+    ports:
+      - "5437:5432"
+
+  postgres_monitoring:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: microml_monitoring_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - monitoring_data:/var/lib/postgresql/data
+    ports:
+      - "5438:5432"
+
+  inference_service:
+    build: ./inference_service
+    depends_on:
+      - postgres_inference
+    environment:
+      DATABASE_URL: postgresql://user:pass@postgres_inference:5432/microml_inference_db
+    ports:
+      - "8000:8000"
+
+  # Add other microservices with their respective DBs
+
+volumes:
+  ingestion_data:
+  preprocess_data:
+  feature_data:
+  training_data:
+  inference_data:
+  monitoring_data:
